@@ -1,12 +1,11 @@
 package me.gacekmpl2;
 
 import me.gacekmpl2.commands.TokenCommand;
+import me.gacekmpl2.essentials.TabCompleter;
 import me.gacekmpl2.manger.DatabaseManager;
-import me.gacekmpl2.manger.TokenManager;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.SQLException;
+import java.util.Objects;
 
 
 public class TokenMPG extends JavaPlugin {
@@ -17,16 +16,16 @@ public class TokenMPG extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        databaseManager = new DatabaseManager(
+        getCommand("token").setExecutor(new TokenCommand());
+        Objects.requireNonNull(getCommand("token")).setTabCompleter(new TabCompleter());
+        getLogger().info("Plugin enabled.");
+        this.databaseManager = new DatabaseManager(
                 "localhost",
                 "3306",
                 "luckperms",
-                "root",
-                ""
+                "luckperms",
+                "sperma"
         );
-
-        getCommand("token").setExecutor(new TokenCommand());
-        getLogger().info("Plugin enabled.");
 
         prepareTables();
     }

@@ -1,7 +1,6 @@
 name: TokenMPG
 version: '${project.version}'
 main: me.gacekmpl2.TokenMPG
-api-version: 1.20
 authors: [ GacekMPL2 ]
 
 commands:
