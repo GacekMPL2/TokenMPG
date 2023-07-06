@@ -24,7 +24,7 @@ public class TokenMPG extends JavaPlugin {
                 "3306",
                 "luckperms",
                 "luckperms",
-                "sperma"
+                "123"
         );
 
         prepareTables();

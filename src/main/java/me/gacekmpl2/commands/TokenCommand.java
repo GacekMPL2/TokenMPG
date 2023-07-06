@@ -85,125 +85,141 @@ public class TokenCommand implements CommandExecutor {
             }
         } else if (sender instanceof Player) {
             Player player = (Player) sender;
-            String playerName = player.getName();
 
-            switch (args.length) {
-                case 0:
-                    try {
-                        TokenManager.addPlayer(playerName);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                    int tokens = TokenManager.getTokens(playerName);
-                    ChatUtils.sendMessage(player, "&f&lPosiadasz " + tokens + " tokenów.");
-                    break;
-                case 2:
-                    if (args[0].equalsIgnoreCase("give")) {
-                        try {
-                            playerName = args[1];
-                            TokenManager.addTokens(playerName, 1);
-                            ChatUtils.sendMessage(player, "Dodano 1 token dla gracza " + playerName + ".");
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    } else if (args[0].equalsIgnoreCase("take")) {
-                        try {
-                            playerName = args[1];
-                            int amount = Integer.parseInt(args[2]);
-                            if (amount < 0) {
-                                ChatUtils.sendMessage(player, "&c&LIlość tokenów musi być większa lub równa 0.");
-                                return true;
-                            }
+            if (args.length == 2 && args[0].equalsIgnoreCase("check")) {
+                String targetPlayerName = args[1];
+                int tokens = TokenManager.getTokens(targetPlayerName);
+                ChatUtils.sendMessage(player, "Gracz " + targetPlayerName + " posiada " + tokens + " tokenów.");
+            } else {
+                String playerName = player.getName();
 
-                            int currentTokens = TokenManager.getTokens(playerName);
-                            if (amount > currentTokens) {
-                                ChatUtils.sendMessage(player, "&cGracz " + playerName + " nie posiada tyle tokenów. Obecne saldo: " + currentTokens);
-                                return true;
+                switch (args.length) {
+                    case 0:
+                        try {
+                            TokenManager.addPlayer(playerName);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        int tokens = TokenManager.getTokens(playerName);
+                        ChatUtils.sendMessage(player, "&f&lPosiadasz " + tokens + " tokenów.");
+                        break;
+                    case 2:
+                        if (args[0].equalsIgnoreCase("give")) {
+                            try {
+                                playerName = args[1];
+                                TokenManager.addTokens(playerName, 1);
+                                ChatUtils.sendMessage(player, "Dodano 1 token dla gracza " + playerName + ".");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
                             }
+                        } else if (args[0].equalsIgnoreCase("take")) {
+                            try {
+                                playerName = args[1];
+                                int amount = Integer.parseInt(args[2]);
+                                if (amount < 0) {
+                                    ChatUtils.sendMessage(player, "&c&LIlość tokenów musi być większa lub równa 0.");
+                                    return true;
+                                }
 
-                            TokenManager.removeTokens(playerName, amount);
-                            ChatUtils.sendMessage(player, "Usunięto " + amount + " tokenów dla gracza " + playerName + ".");
-                        } catch (NumberFormatException e) {
-                            ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token set <nick> <ilość>");
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    } else if (args[0].equalsIgnoreCase("set")) {
-                        try {
-                            playerName = args[1];
-                            int amount = Integer.parseInt(args[2]);
-                            if (amount < 0) {
-                                ChatUtils.sendMessage(player, "&c&LIlość tokenów musi być większa lub równa 0.");
-                                return true;
+                                int currentTokens = TokenManager.getTokens(playerName);
+                                if (amount > currentTokens) {
+                                    ChatUtils.sendMessage(player, "&cGracz " + playerName + " nie posiada tyle tokenów. Obecne saldo: " + currentTokens);
+                                    return true;
+                                }
+
+                                TokenManager.removeTokens(playerName, amount);
+                                ChatUtils.sendMessage(player, "Usunięto " + amount + " tokenów dla gracza " + playerName + ".");
+                            } catch (NumberFormatException e) {
+                                ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token set <nick> <ilość>");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
                             }
-                            TokenManager.setTokens(playerName, amount);
-                            ChatUtils.sendMessage(player, "Ustawiono " + amount + " tokenów dla gracza " + playerName + ".");
-                        } catch (NumberFormatException e) {
-                            ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token set <nick> <ilość>");
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        ChatUtils.sendMessage(player, "&cNieznana komenda. &2Użyj /token give/take/set <nick>");
-                    }
-                    break;
-                case 3:
-                    if (args[0].equalsIgnoreCase("give")) {
-                        try {
-                            playerName = args[1];
-                            int amount = Integer.parseInt(args[2]);
-                            if (amount < 0) {
-                                ChatUtils.sendMessage(player, "&c&LIlość tokenów musi być większa lub równa 0.");
-                                return true;
-                            }
-                            TokenManager.addTokens(playerName, amount);
-                            ChatUtils.sendMessage(player, "Dodano " + amount + " tokenów dla gracza " + playerName + ".");
-                        } catch (NumberFormatException e) {
-                            ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token give <nick> <ilość>");
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    } else if (args[0].equalsIgnoreCase("take")) {
-                        try {
-                            playerName = args[1];
-                            int amount = Integer.parseInt(args[2]);
-                            if (amount < 0) {
-                                ChatUtils.sendMessage(player, "&cIlość tokenów musi być większa lub równa 0.");
+                        } else if (args[0].equalsIgnoreCase("set")) {
+                            if (args.length < 3) {
+                                ChatUtils.sendMessage(player, "&cNieprawidłowe użycie komendy. &2Użyj /token set <nick> <ilość>");
                                 return true;
                             }
 
-                            int currentTokens = TokenManager.getTokens(playerName);
-                            if (amount > currentTokens) {
-                                ChatUtils.sendMessage(player, "&cGracz " + playerName + " nie posiada tyle tokenów. Obecne saldo: " + currentTokens);
-                                return true;
+                            try {
+                                playerName = args[1];
+                                int amount = Integer.parseInt(args[2]);
+                                if (amount < 0) {
+                                    ChatUtils.sendMessage(player, "&cIlość tokenów musi być większa lub równa 0.");
+                                    return true;
+                                }
+                                TokenManager.setTokens(playerName, amount);
+                                ChatUtils.sendMessage(player, "Ustawiono " + amount + " tokenów dla gracza " + playerName + ".");
+                            } catch (NumberFormatException e) {
+                                ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token set <nick> <ilość>");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
                             }
+                        } else {
+                            ChatUtils.sendMessage(player, "&cNieznana komenda. &2Użyj /token give/take/set <nick>");
+                        }
+                        break;
+                    case 3:
+                        if (args[0].equalsIgnoreCase("give")) {
+                            try {
+                                playerName = args[1];
+                                int amount = Integer.parseInt(args[2]);
+                                if (amount < 0) {
+                                    ChatUtils.sendMessage(player, "&c&LIlość tokenów musi być większa lub równa ```java");
+                                    return true;
+                                }
+                                TokenManager.addTokens(playerName, amount);
+                                ChatUtils.sendMessage(player, "Dodano " + amount + " tokenów dla gracza " + playerName + ".");
+                            } catch (NumberFormatException e) {
+                                ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token give <nick> <ilość>");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (args[0].equalsIgnoreCase("take")) {
+                            try {
+                                playerName = args[1];
+                                int amount = Integer.parseInt(args[2]);
+                                if (amount < 0) {
+                                    ChatUtils.sendMessage(player, "&cIlość tokenów musi być większa lub równa 0.");
+                                    return true;
+                                }
 
-                            TokenManager.removeTokens(playerName, amount);
-                            ChatUtils.sendMessage(player, "Usunięto " + amount + " tokenów dla gracza " + playerName + ".");
-                        } catch (NumberFormatException e) {
-                            ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token take <nick> <ilość>");
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    } else if (args[0].equalsIgnoreCase("set")) {
-                        try {
-                            playerName = args[1];
-                            int amount = Integer.parseInt(args[2]);
-                            if (amount < 0) {
-                                ChatUtils.sendMessage(player, "&cIlość tokenów musi być większa lub równa 0.");
+                                int currentTokens = TokenManager.getTokens(playerName);
+                                if (amount > currentTokens) {
+                                    ChatUtils.sendMessage(player, "&cGracz " + playerName + " nie posiada tyle tokenów. Obecne saldo: " + currentTokens);
+                                    return true;
+                                }
+
+                                TokenManager.removeTokens(playerName, amount);
+                                ChatUtils.sendMessage(player, "Usunięto " + amount + " tokenów dla gracza " + playerName + ".");
+                            } catch (NumberFormatException e) {
+                                ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token take <nick> <ilość>");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (args[0].equalsIgnoreCase("set")) {
+                            if (args.length < 3) {
+                                ChatUtils.sendMessage(player, "&cNieprawidłowe użycie komendy. &2Użyj /token set <nick> <ilość>");
                                 return true;
                             }
-                            TokenManager.setTokens(playerName, amount);
-                            ChatUtils.sendMessage(player, "Ustawiono " + amount + " tokenów dla gracza " + playerName + ".");
-                        } catch (NumberFormatException e) {
-                            ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token set <nick> <ilość>");
-                        } catch (SQLException e) {
-                            e.printStackTrace();
+                            try {
+                                playerName = args[1];
+                                int amount = Integer.parseInt(args[2]);
+                                if (amount < 0) {
+                                    ChatUtils.sendMessage(player, "&cIlość tokenów musi być większa lub równa 0.");
+                                    return true;
+                                }
+                                TokenManager.setTokens(playerName, amount);
+                                ChatUtils.sendMessage(player, "Ustawiono " + amount + " tokenów dla gracza " + playerName + ".");
+                            } catch (NumberFormatException e) {
+                                ChatUtils.sendMessage(player, "&cNieprawidłowa ilość tokenów. &2Użyj /token set <nick> <ilość>");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            ChatUtils.sendMessage(player, "&cNieznana komenda. &2Użyj /token give/take/set <nick> <ilość>");
                         }
-                    } else {
-                        ChatUtils.sendMessage(player, "&cNieznana komenda. &2Użyj /token give/take/set <nick> <ilość>");
-                    }
-                    break;
+                        break;
+                }
             }
         }
         return true;
